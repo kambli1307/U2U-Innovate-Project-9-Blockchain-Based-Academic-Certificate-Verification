@@ -8,5 +8,8 @@ Notes or summaries of weekly progress, tasks completed, and challenges faced.
 Final Documentation (to be added)  
 A polished project report with Abstract, Methodology, Results, Insights, and Conclusion.
 
-
+Usage
+Open the Verification Results Report to see how blockchain hashing detected authentic vs tampered certificates.
+Use Weekly Reports to track project progress and milestones.
+Refer to Final Documentation for a complete academic-style report summarizing the entire project.
 
