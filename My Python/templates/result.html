@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verification Result</title>
+  <style>
+    body { background: linear-gradient(to right, #a1c4fd, #c2e9fb); font-family: Arial; }
+    .box { margin:50px auto; max-width:600px; background:white; padding:30px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
+    h2 { color: green; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>✅ Certificate Verified</h2>
+    <p><b>ID:</b> {{ record["CertificateID"] }}</p>
+    <p><b>Name:</b> {{ record["Name"] }}</p>
+    <p><b>Course:</b> {{ record["Course"] }}</p>
+    <p><b>Date:</b> {{ record["Date"] }}</p>
+    <h3>📜 History</h3>
+    <ul>
+      {% for h in history %}
+        <li>{{ h }}</li>
+      {% endfor %}
+    </ul>
+    <a href="/dashboard">⬅ Back to Dashboard</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Left Sidebar Layout --- */
+        .sidebar {
+            width: 260px;
+            background: #1e1e2f;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            font-size: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 1px;
+            color: #38ef7d;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #b3b3b3;
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: #2d2d44;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background: #ff4d4d;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+        .logout-btn:hover { opacity: 0.9; }
+
+        /* --- Main App Container --- */
+        .main-content {
+            flex: 1;
+            width: calc(100% - 260px);
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+
+        .header h1 { color: #333; font-size: 28px; }
+        .user-tag { background: #e2e8f0; padding: 6px 16px; border-radius: 20px; font-weight: 600; color: #4a5568;}
+
+        /* --- Content Layout Sections --- */
+        .dashboard-tab { display: none; }
+        .dashboard-tab.active-tab { display: block; }
+
+        /* Modern Display Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .card h3 { margin-bottom: 20px; color: #2d3748; }
+
+        /* Toggle Options Switcher Container */
+        .mode-toggle-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .toggle-card {
+            flex: 1;
+            padding: 20px;
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.2s ease;
+        }
+        .toggle-card.selected-mode {
+            border-color: #11998e;
+            background: #f0fdfa;
+            color: #11998e;
+        }
+
+        /* Form styling elements */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        /* Custom Upload Wrapper */
+        .file-upload-box {
+            border: 3px dashed #cbd5e0;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #f8fafc;
+            transition: border-color 0.2s;
+            display: block;
+        }
+        .file-upload-box:hover { border-color: #11998e; }
+        .file-upload-box input { display: none; }
+        
+        .submit-btn {
+            margin-top: 15px;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Verification Results Styles */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .status-Verified { background: #c6f6d5; color: #22543d; }
+        .status-Failed { background: #fed7d7; color: #c53030; }
+        .status-Error { background: #feebc8; color: #c05621; }
+
+        /* History Table UI */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .history-table th, .history-table td {
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .history-table th { background: #f7fafc; color: #4a5568; }
+
+        /* Chat Widget Styles */
+        .chat-box {
+            border: 1px solid #e2e8f0;
+            height: 300px;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+            background: #fafafa;
+            margin-bottom: 15px;
+        }
+        .chat-msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 8px; max-width: 75%; }
+        .chat-msg.user { background: #007bff; color: white; margin-left: auto; text-align: right; }
+        .chat-msg.bot { background: #e2e8f0; color: #333; }
+        
+        .chat-input-row { display: flex; gap: 10px; }
+        .chat-input-row input { flex: 1; padding: 12px; border: 1px solid #cbd5e0; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Verify Engine</h2>
+        <button id="btn-upload" class="nav-btn {% if active_tab == 'upload' or not active_tab %}active{% endif %}" onclick="switchTab('upload')"> Check Certificate</button>
+        <button id="btn-verify" class="nav-btn {% if active_tab == 'verify' %}active{% endif %}" onclick="switchTab('verify')"> Live Verification</button>
+        <button id="btn-history" class="nav-btn {% if active_tab == 'history' %}active{% endif %}" onclick="switchTab('history')"> Operations History</button>
+        <button id="btn-chatbot" class="nav-btn" onclick="switchTab('chatbot')"> AI Assistant</button>
+        
+        <a href="{{ url_for('logout') }}" class="logout-btn">Log Out</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Workspace Terminal</h1>
+            <div class="user-tag">Active User: {{ user }}</div>
+        </div>
+
+        <div id="upload" class="dashboard-tab {% if active_tab == 'upload' or not active_tab %}active-tab{% endif %}">
+            
+            <div class="mode-toggle-container">
+                <div id="toggle-upload" class="toggle-card selected-mode" onclick="setVerifyMode('upload')">
+                    📁 Upload Document File
+                </div>
+                <div id="toggle-manual" class="toggle-card" onclick="setVerifyMode('manual')">
+                    ✍️ Enter Details Manually
+                </div>
+            </div>
+
+            <div id="form-upload-container" class="card">
+                <h3>Submit Document File</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="verification_method" value="upload">
+                    <label class="file-upload-box" id="dropzone">
+                        <p style="font-size: 18px; color: #4a5568;">Click or Drag files here to upload your PDF certificate</p>
+                        <p style="font-size: 13px; color: #a0aec0; margin-top: 5px;">Supports structural processing or raw scan OCR extraction</p>
+                        <input type="file" name="certificate" onchange="updateFileLabel(this)">
+                        <div id="file-name-display" style="margin-top:15px; font-weight:bold; color:#11998e;"></div>
+                    </label>
+                    <button type="submit" class="submit-btn">Run Engine Analyzer</button>
+                </form>
+            </div>
+
+            <div id="form-manual-container" class="card" style="display: none;">
+                <h3>Enter Registry Details</h3>
+                <form method="POST">
+                    <input type="hidden" name="verification_method" value="manual">
+                    
+                    <div class="form-group">
+                        <label>Student Full Name:</label>
+                        <input type="text" name="student_name" placeholder="E.g. JOHN DOE" autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Certificate Serial ID Number:</label>
+                        <input type="text" name="certificate_id" placeholder="E.g. CERT-10294" autocomplete="off">
+                    </div>
+
+                    <button type="submit" class="submit-btn">Query Database Registries</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="verify" class="dashboard-tab {% if active_tab == 'verify' %}active-tab{% endif %}">
+            <h2 style="margin-bottom: 20px; color: #333;">Multi-Certificate Results Matrix</h2>
+            
+            {% if results %}
+                {% set displayed_results_count = namespace(value=0) %}
+                {% for result in results %}
+                    {% if result.user == user or result.StudentName_Extracted == user %}
+                        {% set displayed_results_count.value = displayed_results_count.value + 1 %}
+                        <div class="card" style="border-left: 5px solid {% if result.status == 'Verified' %}#38ef7d{% elif result.status == 'Failed' %}#ff4d4d{% else %}#ffa500{% endif %};">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h4 style="color: #4a5568;">📄 Resource: <span style="color: #11998e;">{{ result.File_Processed }}</span></h4>
+                                <div>
+                                    <span style="font-size: 13px; color: #a0aec0; margin-right: 15px;">Analyzed at {{ result.Timestamp }}</span>
+                                    <div class="status-badge status-{{ result.status }}">{{ result.status }}</div>
+                                </div>
+                            </div>
+                            
+                            {% if result.Error %}
+                                <p style="color: #c53030; font-weight: bold;">System Note: {{ result.Error }}</p>
+                            {% else %}
+                                <table class="history-table">
+                                    {% for key, val in result.items() %}
+                                        {% if key not in ['status', 'File_Processed', 'Timestamp', 'StudentName_Extracted', 'user'] %}
+                                        <tr>
+                                            <th style="width: 30%;">{{ key }}</th>
+                                            <td>{{ val }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </table>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if displayed_results_count.value == 0 %}
+                    <div class="card">
+                        <p style="color: #718096;">No active analysis in memory buffer for this account. Process a sequence tracking query first.</p>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="card">
+                    <p style="color: #718096;">No active analysis in memory buffer. Process a sequence tracking query first.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="history" class="dashboard-tab">
+            <div class="card">
+                <h3>System Logs</h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Operator ID</th>
+                            <th>Target Asset</th>
+                            <th>Timestamp Log</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set displayed_count = namespace(value=0) %}
+                        {% for item in history %}
+                            {% if item.user == user %}
+                                {% set displayed_count.value = displayed_count.value + 1 %}
+                                <tr>
+                                    <td><strong>{{ item.user }}</strong></td>
+                                    <td>{{ item.file }}</td>
+                                    <td><span style="color: #718096; font-size: 14px;">{{ item.time }}</span></td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if displayed_count.value == 0 %}
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: #a0aec0;">System operations log empty for this account.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="chatbot" class="dashboard-tab">
+            <div class="card">
+                <h3>AI Co-Pilot Helpdesk</h3>
+                <div class="chat-box" id="chat-container">
+                    <div class="chat-msg bot">Hello! I am your AI documentation inspector. How can I assist you with records checking today?</div>
+                </div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" placeholder="Ask your processing assistant...">
+                    <button class="submit-btn" style="margin: 0;" onclick="sendMessage()">Send Message</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + tabId).classList.add('active');
+
+            document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active-tab'));
+            document.getElementById(tabId).classList.add('active-tab');
+        }
+
+        function setVerifyMode(mode) {
+            document.querySelectorAll('.toggle-card').forEach(c => c.classList.remove('selected-mode'));
+            
+            if (mode === 'upload') {
+                document.getElementById('toggle-upload').classList.add('selected-mode');
+                document.getElementById('form-upload-container').style.display = 'block';
+                document.getElementById('form-manual-container').style.display = 'none';
+            } else {
+                document.getElementById('toggle-manual').classList.add('selected-mode');
+                document.getElementById('form-upload-container').style.display = 'none';
+                document.getElementById('form-manual-container').style.display = 'block';
+            }
+        }
+
+        function updateFileLabel(input) {
+            const display = document.getElementById('file-name-display');
+            if(input.files.length > 0) {
+                display.innerText = "Selected file: " + input.files[0].name;
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const container = document.getElementById('chat-container');
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            container.innerHTML += `<div class="chat-msg user">${txt}</div>`;
+            input.value = "";
+            container.scrollTop = container.scrollHeight;
+
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: txt })
+            });
+            const data = await response.json();
+
+            container.innerHTML += `<div class="chat-msg bot">${data.reply}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+</body>
+</html>
