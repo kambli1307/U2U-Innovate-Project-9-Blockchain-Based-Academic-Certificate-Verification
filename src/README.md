@@ -1,5 +1,5 @@
 This folder contains source code for data preprocessing,training, and inference
-# Flask Project
+# CODE
 
 - Backend built with Flask  
 - Frontend using HTML, CSS, templates  
