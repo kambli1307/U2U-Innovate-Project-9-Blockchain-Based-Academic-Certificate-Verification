@@ -1,5 +1,5 @@
 This folder contains deployment files like Dockerfile and deployment scripts.
-Deployment Summary
+
 The Blockchain-Based Academic Certificate Verification System was successfully deployed as a Flask web application in a cloud hosting environment.
 
 The application backend (Flask, Python libraries) and frontend (HTML templates) were organized and deployed.
